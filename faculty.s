@@ -19,22 +19,25 @@ faculty:
 
 .global main
     main:
-        LDR R0, =title
-        SWI 0x02
+        LDR R0, =title                  /* Load title adress to R0 */
+        SWI 0x02                        /* Syscall to print string to screen */
         LDR R3, =numbers                /* Save numbers adress in R3 */
         LDR R2, [R3]                    /* Grab first value of R3, store it in R2 */
         MOV R0, R2                      /* Copy R2 to R0(Using R0 in faculty rutine) */         
         
-    again:
+    loop:
         CMP R2, #0x0                    /* If we reach the last item in numbers, exit program */
         BEQ end                         /* Go to end */
         BL faculty                      /* Go to faculty */
         BL print                        /* Go to print */
+        B update
+    
+    update:
         ADD R3, R3, #0x04               /* Adding 4 bytes to R4 inorder to travel the numbers array */
         LDR R2, [R3]                    /* Load the new number from R3, after adding 4 bytes to R2 */
         MOV R0, R2                      /* Move the new value from R2 to R0 */
         MOV R4, #0x0                    /* Nulls R4 to avoid any errors */
-        B again                         /* Call recursive */      
+        B loop                          /* Call recursive */      
     
 end:
     SWI 0x11                            /* Syscall EXIT */
@@ -53,7 +56,6 @@ print:
 .data
 numbers:
     .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0
-
 newline:
     .asciz "\n" 
 title:
