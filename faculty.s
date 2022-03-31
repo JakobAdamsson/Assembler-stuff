@@ -1,26 +1,53 @@
-.global fakultet
-    fakultet:
-        STMDB  sp!, {r4, lr}        // Put R4 on the stack incase its used in the main function
-        CMP R4, #0                  // See if R4 has the value 0, first iteration it will so jump to start
-        BEQ start                   // Jump to start
+fakultet:
+    STMDB  sp!, {r4, lr}                /* Put register 4 and the last possition in the program on the stack */
+    CMP R4, #0                          /* Register 4 is 0 by default, change it accordingly in START */
+    BEQ start                           /* Branch Equal meaning the above comparison, go to start */
 
-        SUB R0, R0, #1              // Subtract one from R0 go get decending order
-        CMP R0, #0                  // See if R0 is 0, if we reach 0 break the loop
-        BEQ finished                // If above is true, go to finish
-        MUL R4, R0, R4              // Multiply R0 and R4 and store it in R4
-        B fakultet                  // Recursive call until codition is met
+    SUB R0, R0, #1                      /* Subtract the value within register 0 to achieve decending order */
+    CMP R0, #0                          /* Check if we reach 0 */
+    BEQ finished                        /* If 0 is reached, the comparison above is true, go to finish */
+    MUL R4, R0, R4                      /* If not 0, multiply R0 and R4 and store in R4 */
+    B fakultet                          /* Call recursive */
 
     start:
-        MOV R4, R0                  // Initilize R4 with the value of R0
-        B fakultet                  // Go back to where we came from
+        MOV R4, R0                      /* Copy the value of R0 to R4, being the value in numbers array */
+        B fakultet                      /* Go back to fakultet */
 
     finished:
-        MOV R0, R4                  // If finished, save the result in R0(we always want the result in R0)
-        LDMIA  sp!, {r4, pc}        // Remove r4 from the stack and return to the next row from where we entered fakultet
+        MOV R0, R4                      /* If R0 reached 0, save result in R0 */
+        LDMIA  sp!, {r4, pc}            /* Since the faculty is calculated, remove r4 and last current possition from the stack, going to current program pointer */
 
 .global main
     main:
-        MOV R0, #5                  // Initilize what faculty you want
-        BL fakultet                 // Go into fakultet "function"
+        LDR R3, =numbers                /* Save numbers adress in R3 */
+        LDR R2, [R3]                    /* Grab first value of R3, store it in R2 */
+        MOV R0, R2                      /* Copy R2 to R0(Using R0 in fakultet rutine) */         
+        
+    again:
+        CMP R2, #0x0                    /* If we reach the last item in numbers, exit program */
+        BEQ end                         /* Go to end */
+        BL fakultet                     /* Go to fakultet */
+        BL print                        /* Go to print */
+        ADD R3, R3, #0x04               /* Adding 4 bytes to R4 inorder to travel the numbers array */
+        LDR R2, [R3]                    /* Load the new number from R3, after adding 4 bytes to R2 */
+        MOV R0, R2                      /* Move the new value from R2 to R0 */
+        MOV R4, #0x0                    /* Nulls R4 to avoid any errors */
+        B again                         /* Call recursive */      
+    
+end:
+    SWI 0x11                            /* Syscall EXIT */
 
+print:
+    MOV R1, R0                          /* Save value to be printed in R1 */
+    MOV R0, #0x1                        /* File handle */
+    SWI 0x6b                            /* Syscall Write integer to file */
+    LDR R0, =newline                    /* Load adress of newline to R1 */
+    SWI 0x02                            /* Syscall "Display string on Stdout" */
+    BX lr                               /* Go back to where we came from, being +1 from BL print */
 
+.data
+numbers:
+    .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0
+
+newline:
+    .ascii "\n"
