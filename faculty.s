@@ -19,6 +19,8 @@ faculty:
 
 .global main
     main:
+        LDR R0, =title
+        SWI 0x02
         LDR R3, =numbers                /* Save numbers adress in R3 */
         LDR R2, [R3]                    /* Grab first value of R3, store it in R2 */
         MOV R0, R2                      /* Copy R2 to R0(Using R0 in faculty rutine) */         
@@ -38,9 +40,12 @@ end:
     SWI 0x11                            /* Syscall EXIT */
 
 print:
+    /* Prints the text and \n */
     MOV R1, R0                          /* Save value to be printed in R1 */
     LDR R0, =newline                    /* Load adress of newline to R1 */
     SWI 0x02                            /* Syscall "Display string on Stdout" */
+    
+    /* Prints the integers */
     MOV R0, #0x1                        /* File handle so i can print integer to screen */
     SWI 0x6b                            /* Syscall Write integer to file */
     BX lr                               /* Go back to where we came from, being +1 from BL print */
@@ -50,6 +55,6 @@ numbers:
     .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0
 
 newline:
-    .ascii "\n"
-string:
-    .asciz "Facutly:" 
+    .asciz "\n" 
+title:
+    .asciz "Faculty of 1-10:"
