@@ -1,4 +1,4 @@
-fakultet:
+faculty:
     STMDB  sp!, {r4, lr}                /* Put register 4 and the last possition in the program on the stack */
     CMP R4, #0                          /* Register 4 is 0 by default, change it accordingly in START */
     BEQ start                           /* Branch Equal meaning the above comparison, go to start */
@@ -7,11 +7,11 @@ fakultet:
     CMP R0, #0                          /* Check if we reach 0 */
     BEQ finished                        /* If 0 is reached, the comparison above is true, go to finish */
     MUL R4, R0, R4                      /* If not 0, multiply R0 and R4 and store in R4 */
-    B fakultet                          /* Call recursive */
+    B faculty                          /* Call recursive */
 
     start:
         MOV R4, R0                      /* Copy the value of R0 to R4, being the value in numbers array */
-        B fakultet                      /* Go back to fakultet */
+        B faculty                      /* Go back to faculty */
 
     finished:
         MOV R0, R4                      /* If R0 reached 0, save result in R0 */
@@ -21,12 +21,12 @@ fakultet:
     main:
         LDR R3, =numbers                /* Save numbers adress in R3 */
         LDR R2, [R3]                    /* Grab first value of R3, store it in R2 */
-        MOV R0, R2                      /* Copy R2 to R0(Using R0 in fakultet rutine) */         
+        MOV R0, R2                      /* Copy R2 to R0(Using R0 in faculty rutine) */         
         
     again:
         CMP R2, #0x0                    /* If we reach the last item in numbers, exit program */
         BEQ end                         /* Go to end */
-        BL fakultet                     /* Go to fakultet */
+        BL faculty                     /* Go to faculty */
         BL print                        /* Go to print */
         ADD R3, R3, #0x04               /* Adding 4 bytes to R4 inorder to travel the numbers array */
         LDR R2, [R3]                    /* Load the new number from R3, after adding 4 bytes to R2 */
