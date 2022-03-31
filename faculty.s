@@ -7,11 +7,11 @@ faculty:
     CMP R0, #0                          /* Check if we reach 0 */
     BEQ finished                        /* If 0 is reached, the comparison above is true, go to finish */
     MUL R4, R0, R4                      /* If not 0, multiply R0 and R4 and store in R4 */
-    B faculty                          /* Call recursive */
+    B faculty                           /* Call recursive */
 
     start:
         MOV R4, R0                      /* Copy the value of R0 to R4, being the value in numbers array */
-        B faculty                      /* Go back to faculty */
+        B faculty                       /* Go back to faculty */
 
     finished:
         MOV R0, R4                      /* If R0 reached 0, save result in R0 */
@@ -26,7 +26,7 @@ faculty:
     again:
         CMP R2, #0x0                    /* If we reach the last item in numbers, exit program */
         BEQ end                         /* Go to end */
-        BL faculty                     /* Go to faculty */
+        BL faculty                      /* Go to faculty */
         BL print                        /* Go to print */
         ADD R3, R3, #0x04               /* Adding 4 bytes to R4 inorder to travel the numbers array */
         LDR R2, [R3]                    /* Load the new number from R3, after adding 4 bytes to R2 */
@@ -39,10 +39,10 @@ end:
 
 print:
     MOV R1, R0                          /* Save value to be printed in R1 */
-    MOV R0, #0x1                        /* File handle */
-    SWI 0x6b                            /* Syscall Write integer to file */
     LDR R0, =newline                    /* Load adress of newline to R1 */
     SWI 0x02                            /* Syscall "Display string on Stdout" */
+    MOV R0, #0x1                        /* File handle so i can print integer to screen */
+    SWI 0x6b                            /* Syscall Write integer to file */
     BX lr                               /* Go back to where we came from, being +1 from BL print */
 
 .data
@@ -51,3 +51,5 @@ numbers:
 
 newline:
     .ascii "\n"
+string:
+    .asciz "Facutly:" 
