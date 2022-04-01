@@ -1,5 +1,5 @@
 faculty:
-    STMDB  sp!, {r4, lr}                /* Put register 4 and the last possition in the program on the stack */
+    STMDB  sp!, {r4, lr}                /* Put register 4 and the last possition in the program on the stack (PUSH) */
     CMP R4, #0                          /* Register 4 is 0 by default, change it accordingly in START */
     BEQ start                           /* Branch Equal meaning the above comparison, go to start */
 
@@ -15,7 +15,7 @@ faculty:
 
     finished:
         MOV R0, R4                      /* If R0 reached 0, save result in R0 */
-        LDMIA  sp!, {r4, pc}            /* Since the faculty is calculated, remove r4 and last current possition from the stack, going to current program pointer */
+        LDMIA  sp!, {r4, pc}            /* Since the faculty is calculated, remove r4 and last current possition from the stack, going to current program pointer (POP) */
 
 .global main
     main:
@@ -38,25 +38,27 @@ faculty:
         MOV R0, R2                      /* Move the new value from R2 to R0 */
         MOV R4, #0x0                    /* Nulls R4 to avoid any errors */
         B loop                          /* Call recursive */      
-    
+
 end:
     SWI 0x11                            /* Syscall EXIT */
 
 print:
+    STMDB  sp!, {R0, R1, lr}            /* Put last possition on stack aswell as R0 and R1 (PUSH) */
+    
     /* Prints the text and \n */
     MOV R1, R0                          /* Save value to be printed in R1 */
     LDR R0, =newline                    /* Load adress of newline to R1 */
     SWI 0x02                            /* Syscall "Display string on Stdout" */
-    
     /* Prints the integers */
     MOV R0, #0x1                        /* File handle so i can print integer to screen */
     SWI 0x6b                            /* Syscall Write integer to file */
-    BX lr                               /* Go back to where we came from, being +1 from BL print */
-
+    
+    LDMIA  sp!, {R0, R1, pc}            /* Go back to where we came from, being +1 from BL print and remove R0, R1 from stack (POP) */
+      
 .data
-numbers:
-    .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0
-newline:
-    .asciz "\n" 
-title:
-    .asciz "Faculty of 1-10:"
+    numbers:
+        .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0
+    newline:
+        .asciz "\n" 
+    title:
+        .asciz "Faculty of 1-10:"
